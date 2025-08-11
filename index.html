@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài liệu Kỹ thuật Tích hợp Thanh toán App-to-App OneFin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .code-block {
+            background-color: #1f2937; /* gray-800 */
+            color: #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        .table-custom th, .table-custom td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb; /* gray-200 */
+        }
+        .table-custom th {
+            background-color: #f9fafb; /* gray-50 */
+            font-weight: 600;
+            color: #374151; /* gray-700 */
+        }
+        h2 {
+            border-bottom: 2px solid #e5e7eb; /* gray-200 */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #047481; /* Custom teal */
+        }
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #059669; /* Custom green */
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937; /* gray-800 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-700">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-xl font-bold text-[#047481]">OneFin Integration Docs</div>
+            <nav class="hidden md:flex space-x-8 text-gray-600 font-medium">
+                <a href="#overview" class="hover:text-[#059669]">Tổng quan</a>
+                <a href="#flows" class="hover:text-[#059669]">Luồng Tích hợp</a>
+                <a href="#manifest" class="hover:text-[#059669]">Cấu hình</a>
+                <a href="#reference" class="hover:text-[#059669]">Mã tham khảo</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 md:px-10">
+        <div class="text-center my-12 md:my-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Tài liệu Kỹ thuật Tích hợp Thanh toán App-to-App</h1>
+            <p class="text-lg text-gray-500 mt-3">Phiên bản: 1.0 | Cập nhật: 11/08/2025</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto space-y-16">
+
+            <section id="overview">
+                <h2>1. Tổng quan</h2>
+                <p>Tài liệu này mô tả quy trình tích hợp kỹ thuật giữa <strong>Ứng dụng Đối tác</strong> (Merchant App) và <strong>Ứng dụng Thanh toán OneFin</strong> (Payment App) trên nền tảng Android. Mục tiêu là cho phép Ứng dụng Đối tác có thể khởi tạo các yêu cầu thanh toán và truy vấn thông tin giao dịch một cách an toàn và liền mạch thông qua ứng dụng OneFin.</p>
+                <p class="mt-4">Luồng tích hợp bao gồm hai nghiệp vụ chính:</p>
+                <ul class="list-disc list-inside mt-2 space-y-2 pl-4">
+                    <li><strong>Thực hiện Giao dịch:</strong> Khởi chạy giao diện thanh toán của OneFin để xử lý các nghiệp vụ như Bán hàng (Sale), Hoàn tiền (Refund), v.v.</li>
+                    <li><strong>Truy vấn Giao dịch:</strong> Truy vấn thông tin chi tiết của một giao dịch đã hoàn thành dựa trên mã hóa đơn (Bill Number).</li>
+                </ul>
+            </section>
+
+            <section id="flows">
+                <h2>2. Luồng Tích hợp Kỹ thuật</h2>
+                
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-200 mt-6">
+                    <h3>2.1. Thực hiện Giao dịch (Launch for Payment)</h3>
+                    <p>Để khởi tạo một giao dịch, Ứng dụng Đối tác cần tạo và gửi một `Intent` đến ứng dụng OneFin.</p>
+
+                    <h4>Cấu trúc Intent</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li><strong>Action:</strong> <code class="text-sm bg-gray-200 rounded px-2 py-1">com.onefin.paymentapp.MerchantAction</code></li>
+                        <li><strong>Data URI:</strong> <code class="text-sm bg-gray-200 rounded px-2 py-1">paymentapp://com.onefin.merchantapp</code></li>
+                        <li><strong>Method:</strong> <code class="text-sm bg-gray-200 rounded px-2 py-1">startActivityForResult()</code></li>
+                    </ul>
+
+                    <h4>Dữ liệu đính kèm (Extras)</h4>
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse table-custom">
+                            <thead>
+                                <tr><th>Tên Key</th><th>Kiểu dữ liệu</th><th>Bắt buộc</th><th>Mô tả</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>`type`</td><td>String</td><td>Có</td><td>Loại phương thức thanh toán. Ví dụ: "card", "member", "qr".</td></tr>
+                                <tr><td>`action`</td><td>Int</td><td>Có</td><td>Mã hành động cần thực hiện. Ví dụ: 1 (Sale), 2 (Refund).</td></tr>
+                                <tr><td>`merchant_request_data`</td><td>String</td><td>Có</td><td>Chuỗi JSON chứa thông tin chi tiết của yêu cầu.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>Cấu trúc `merchant_request_data` (JSON String)</h4>
+                    <div class="code-block mt-4">
+<pre><code>{
+  "ccy": "704",
+  "reference_id": "UNIQUE_REF_123",
+  "message": "Thanh toan cuoc taxi",
+  "bill_number": "TOT1234567",
+  "amount": 100000,
+  "tip": 0,
+  "mid": "50A069608",
+  "tid": "047547",
+  "is_enter_pin": true,
+  "additional_data": {
+    "trip_id": "TRIP_XYZ",
+    "driver_id": "047547",
+    "driver_name": "Ngô Thanh Bình"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-200 mt-10">
+                    <h3>2.2. Truy vấn Lịch sử Giao dịch (Query Transaction)</h3>
+                    <p>Ứng dụng Đối tác có thể truy vấn thông tin của một giao dịch đã thực hiện thông qua `ContentProvider` của ứng dụng OneFin.</p>
+
+                    <h4>Cấu trúc URI</h4>
+                     <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li><strong>Định dạng:</strong> <code class="text-sm bg-gray-200 rounded px-2 py-1">content://authority/path/id</code></li>
+                        <li><strong>Authority:</strong> <code class="text-sm bg-gray-200 rounded px-2 py-1">com.onefin.memberapp.transaction.provider</code></li>
+                        <li><strong>Path:</strong> <code class="text-sm bg-gray-200 rounded px-2 py-1">transID</code></li>
+                        <li><strong>ID:</strong> Giá trị `bill_number` của giao dịch.</li>
+                    </ul>
+
+                    <h4>Dữ liệu trả về (Cursor)</h4>
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse table-custom">
+                            <thead>
+                                <tr><th>Tên Cột</th><th>Kiểu dữ liệu</th><th>Mô tả</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>`action`</td><td>Int</td><td>Mã hành động của giao dịch. Ví dụ: 6.</td></tr>
+                                <tr><td>`member_response_data`</td><td>String</td><td>Chuỗi JSON chứa chi tiết giao dịch.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="manifest">
+                <h2>3. Yêu cầu về Quyền và Khai báo (Manifest)</h2>
+                <p>Để đảm bảo ứng dụng có thể tương tác với ứng dụng OneFin trên Android 11+, cần khai báo thẻ `<queries>` trong file `AndroidManifest.xml`.</p>
+                <div class="code-block mt-4">
+<pre><code>&lt;manifest ...&gt;
+    ...
+    &lt;queries&gt;
+        &lt;!-- Cho phép truy vấn ContentProvider --&gt;
+        &lt;provider 
+            android:authorities="com.onefin.memberapp.transaction.provider" /&gt;
+
+        &lt;!-- Cho phép gửi Intent với Action tùy chỉnh --&gt;
+        &lt;intent&gt;
+            &lt;action android:name="com.onefin.paymentapp.MerchantAction" /&gt;
+        &lt;/intent&gt;
+    &lt;/queries&gt;
+&lt;/manifest&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="reference">
+                <h2>4. Mã nguồn Tham khảo (Reference Code)</h2>
+                <p>Dưới đây là đoạn mã Kotlin đầy đủ cho `MainActivity.kt` trong một dự án Flutter, thể hiện cách triển khai cả hai nghiệp vụ.</p>
+                <div class="code-block mt-4">
+<pre><code>package com.example.mailinh_app
+
+import android.app.Activity
+import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
+
+class MainActivity : FlutterActivity() {
+    private val REQUEST_CODE = 1001
+    private val CHANNEL = "com.mailinh/payment_channel"
+    private var resultCallback: MethodChannel.Result? = null
+
+    private fun query(billNumber: String): Map&lt;String, Any&gt;? {
+        val authority = "com.onefin.memberapp.transaction.provider"
+        val path = "transID"
+        val uri = Uri.parse("content://$authority/$path/$billNumber")
+
+        val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val actionIndex = it.getColumnIndex("action")
+                val dataIndex = it.getColumnIndex("member_response_data")
+
+                val action = if (actionIndex != -1) it.getInt(actionIndex) else -1
+                val responseData = if (dataIndex != -1) it.getString(dataIndex) else ""
+
+                return mapOf(
+                    "action" to action,
+                    "member_response_data" to responseData
+                )
+            }
+        }
+        return null
+    }
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "launchPaymentApp" -> {
+                        resultCallback = result
+                        val type = call.argument&lt;String&gt;("type")
+                        val action = call.argument&lt;Int&gt;("action")
+                        val merchantRequestData = call.argument&lt;String&gt;("merchant_request_data")
+                        try {
+                            val intent = Intent("com.onefin.paymentapp.MerchantAction")
+                            intent.data = Uri.parse("paymentapp://com.onefin.merchantapp")
+                            intent.addCategory(Intent.CATEGORY_DEFAULT)
+                            intent.putExtra("type", type)
+                            intent.putExtra("action", action)
+                            intent.putExtra("merchant_request_data", merchantRequestData)
+                            startActivityForResult(intent, REQUEST_CODE)
+                        } catch (e: Exception) {
+                            result.error("INTENT_ERROR", "Could not launch payment app", e.localizedMessage)
+                            resultCallback = null
+                        }
+                    }
+                    "queryTransaction" -> {
+                        try {
+                            val billNumber = call.argument&lt;String&gt;("bill_number")
+                            if (billNumber == null) {
+                                result.error("INVALID_ARGUMENT", "bill_number is required.", null)
+                                return@setMethodCallHandler
+                            }
+                            val transactionData = query(billNumber)
+                            result.success(transactionData)
+                        } catch (e: Exception) {
+                            result.error("QUERY_FAILED", "Failed to query transaction.", e.message)
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE) {
+            resultCallback?.let {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val response = data.getStringExtra("payment_response_data") ?: "No response"
+                    it.success(response)
+                } else {
+                    it.error("CANCELLED", "User cancelled or no data", null)
+                }
+                resultCallback = null
+            }
+        }
+    }
+}
+</code></pre>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer class="text-center mt-16 py-8 bg-gray-800 text-white">
+        <p>&copy; 2025 OneFin. All rights reserved.</p>
+        <p class="text-sm text-gray-400 mt-1">Tài liệu dành cho nhà phát triển</p>
+    </footer>
+
+</body>
+</html>
