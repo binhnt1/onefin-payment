@@ -278,11 +278,11 @@
                 <div class="env-grid">
                     <div class="env-card">
                         <div class="env-label"><span class="env-dot"></span>Dev / SIT</div>
-                        <div class="env-url">https://api-sit-operator.onefin.vn</div>
+                        <div class="env-url">https://sit-pos-gateway.onefin.vn</div>
                     </div>
                     <div class="env-card is-prod">
                         <div class="env-label"><span class="env-dot"></span>Production</div>
-                        <div class="env-url">https://api-operator.onefin.vn</div>
+                        <div class="env-url">https://pos-gateway.onefin.vn</div>
                     </div>
                 </div>
             </section>
@@ -363,7 +363,7 @@
                         </div>
 
                         <h4>Ví dụ request</h4>
-                        <div class="code-block"><pre><code>GET https://api-sit-operator.onefin.vn/api/QueryTransaction/TRANS_20260701_00123</code></pre></div>
+                        <div class="code-block"><pre><code>GET https://sit-pos-gateway.onefin.vn/api/QueryTransaction/TRANS_20260701_00123</code></pre></div>
 
                         <h4>Response</h4>
                         <p>Trả về response nếu tìm thấy giao dịch. Nếu không hợp lệ hoặc không tìm thấy, API trả về đối tượng với <code>status.code = "12"</code>, các trường <code>data</code>, <code>header</code>, <code>requestData</code> đều <code>null</code>.</p>
@@ -581,10 +581,10 @@
                 <div class="section-head">
                     <h2><span class="section-num">06</span>Ví dụ tích hợp (cURL)</h2>
                 </div>
-                <div class="callout" style="margin-bottom: var(--sp-6);">Ví dụ dùng domain môi trường <strong>Dev/SIT</strong>. Khi chuyển sang Production, thay bằng <code>https://api-operator.onefin.vn</code>.</div>
+                <div class="callout" style="margin-bottom: var(--sp-6);">Ví dụ dùng domain môi trường <strong>Dev/SIT</strong>. Khi chuyển sang Production, thay bằng <code>https://pos-gateway.onefin.vn</code>.</div>
 
                 <h4>Khởi tạo thanh toán</h4>
-                <div class="code-block"><pre><code>curl -X POST "https://api-sit-operator.onefin.vn/api/RequestPayment" \
+                <div class="code-block"><pre><code>curl -X POST "https://sit-pos-gateway.onefin.vn/api/RequestPayment" \
   -H "Content-Type: application/json" \
   -d '{
     "Amount": 100000,
@@ -594,7 +594,7 @@
   }'</code></pre></div>
 
                 <h4>Truy vấn giao dịch</h4>
-                <div class="code-block"><pre><code>curl -X GET "https://api-sit-operator.onefin.vn/api/QueryTransaction/TRANS_20260701_00123"</code></pre></div>
+                <div class="code-block"><pre><code>curl -X GET "https://sit-pos-gateway.onefin.vn/api/QueryTransaction/TRANS_20260701_00123"</code></pre></div>
             </section>
 
             <footer>
