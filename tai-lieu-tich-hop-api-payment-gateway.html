@@ -311,6 +311,7 @@
                                     <tr><td><span class="fname">Amount</span></td><td>long</td><td><span class="req">Có</span></td><td>Số tiền giao dịch (VND, không có dấu thập phân).</td></tr>
                                     <tr><td><span class="fname">Serial</span></td><td>string</td><td><span class="req">Có</span></td><td>Số seri thiết bị/terminal thực hiện giao dịch.</td></tr>
                                     <tr><td><span class="fname">RequestId</span></td><td>string</td><td><span class="req">Có</span></td><td>Mã yêu cầu duy nhất do đối tác sinh ra, dùng để đối soát và chống trùng lặp.</td></tr>
+                                    <tr><td><span class="fname">InvoiceNumber</span></td><td>string</td><td><span>Không</span></td><td>Số hóa đơn của giao dịch.</td></tr>
                                     <tr><td><span class="fname">Type</span></td><td>int (enum)</td><td><span class="req">Có</span></td><td>Hình thức thanh toán — xem <code>TransactionFormType</code> bên dưới.</td></tr>
                                 </tbody>
                             </table>
@@ -333,6 +334,7 @@
   "Amount": 100000,
   "Serial": "047547",
   "RequestId": "UNIQUE_REF_20260701_001",
+  "InvoiceNumber": "INVOICE_20260701_001",
   "Type": 1
 }</code></pre></div>
 
@@ -379,7 +381,8 @@
                         <table>
                             <thead><tr><th>Trường</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
                             <tbody>
-                                <tr><td><span class="fname">requestId</span></td><td>string</td><td>Mã yêu cầu (echo từ request, hoặc mã hệ thống sinh ra).</td></tr>
+                                <tr><td><span class="fname">requestId</span></td><td>string</td><td>Mã yêu cầu (lấy từ request, hoặc mã hệ thống sinh ra).</td></tr>
+                                <tr><td><span class="fname">invoiceNumber</span></td><td>string</td><td>Mã hóa đơn (lấy từ request, hoặc mã hệ thống sinh ra).</td></tr>
                                 <tr><td><span class="fname">requestData</span></td><td>RequestData</td><td>Dữ liệu gốc của yêu cầu.</td></tr>
                                 <tr><td><span class="fname">header</span></td><td>Header</td><td>Thông tin định danh giao dịch/terminal.</td></tr>
                                 <tr><td><span class="fname">data</span></td><td>Data</td><td>Chi tiết kết quả giao dịch.</td></tr>
@@ -457,6 +460,7 @@
                     <h4>Response thành công</h4>
                     <div class="code-block"><pre><code>{
   "requestId": "UNIQUE_REF_20260701_001",
+  "invoiceNumber": "INVOICE_20260701_001",
   "requestData": {
     "type": "card",
     "action": "sale",
