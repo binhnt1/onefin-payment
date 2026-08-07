@@ -223,6 +223,7 @@
             <a class="nav-link" href="#api">Chi tiết API</a>
             <a class="nav-sub" href="#request-payment">/RequestPayment</a>
             <a class="nav-sub" href="#query-transaction">/QueryTransaction/{id}</a>
+            <a class="nav-sub" href="#invoice-export">/QueryTransaction/Invoice/{id}</a>
         </div>
 
         <div class="nav-group">
@@ -246,6 +247,7 @@
                     <a href="#overview">Tổng quan</a>
                     <a href="#environments">Môi trường</a>
                     <a href="#api">Chi tiết API</a>
+                    <a href="#invoice-export">Invoice/{id}</a>
                     <a href="#webhook">Webhook</a>
                     <a href="#errors">Mã lỗi</a>
                     <a href="#example">Ví dụ tích hợp</a>
@@ -292,6 +294,7 @@
                     <h2><span class="section-num">03</span>Chi tiết API</h2>
                 </div>
 
+                <h3 style="margin-bottom: var(--sp-4);"><span class="section-num">3.1</span>Khởi tạo Thanh toán</h3>
                 <div class="endpoint-card" id="request-payment">
                     <div class="endpoint-head">
                         <div class="method-row">
@@ -339,10 +342,11 @@
 }</code></pre></div>
 
                         <h4>Response</h4>
-                        <p>Trả về đối tượng response — xem cấu trúc chi tiết tại <a href="#response-structure">mục 3.3</a>.</p>
+                        <p>Trả về đối tượng response — xem cấu trúc chi tiết tại <a href="#response-structure">mục 3.4</a>.</p>
                     </div>
                 </div>
 
+                <h3 style="margin-top: var(--sp-10); margin-bottom: var(--sp-4);"><span class="section-num">3.2</span>Truy vấn Giao dịch</h3>
                 <div class="endpoint-card" id="query-transaction">
                     <div class="endpoint-head">
                         <div class="method-row">
@@ -372,8 +376,68 @@
                     </div>
                 </div>
 
+                <h3 style="margin-top: var(--sp-10); margin-bottom: var(--sp-4);"><span class="section-num">3.3</span>Xem Hóa đơn Giao dịch</h3>
+                <div class="endpoint-card" id="invoice-export">
+                    <div class="endpoint-head">
+                        <div class="method-row">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path"><span class="base">{base_url}</span>/api/QueryTransaction/Invoice/{id}</span>
+                        </div>
+                        <p class="endpoint-title">Xem Hóa đơn Giao dịch (PNG / PDF)</p>
+                    </div>
+                    <div class="endpoint-body">
+                        <p>Trả về file hóa đơn của giao dịch dưới dạng ảnh PNG hoặc tệp PDF. Không yêu cầu xác thực.</p>
+
+                        <h4>Path parameter</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Trường</th><th>Kiểu</th><th>Bắt buộc</th><th>Mô tả</th></tr></thead>
+                                <tbody>
+                                    <tr><td><span class="fname">id</span></td><td>string</td><td><span class="req">Có</span></td><td>Mã giao dịch (<code>transId</code>) hoặc mã yêu cầu (<code>RequestId</code>).</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>Query parameter</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Trường</th><th>Kiểu</th><th>Mặc định</th><th>Mô tả</th></tr></thead>
+                                <tbody>
+                                    <tr><td><span class="fname">format</span></td><td>string</td><td><span class="chip">png</span></td><td>Định dạng file xuất. Nhận giá trị <code>png</code> (ảnh) hoặc <code>pdf</code> (tài liệu).</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>Ví dụ request</h4>
+                        <div class="code-block"><pre><code>GET https://sit-pos-gateway.onefin.vn/api/QueryTransaction/Invoice/TRANS_20260701_00123
+GET https://sit-pos-gateway.onefin.vn/api/QueryTransaction/Invoice/TRANS_20260701_00123?format=pdf</code></pre></div>
+
+                        <h4>Response thành công</h4>
+                        <p>Trả về trực tiếp nội dung file nhị phân kèm header tương ứng:</p>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Header</th><th>Giá trị (ví dụ)</th></tr></thead>
+                                <tbody>
+                                    <tr><td><span class="fname">Content-Type</span></td><td><code>image/png</code> hoặc <code>application/pdf</code></td></tr>
+                                    <tr><td><span class="fname">Content-Disposition</span></td><td><code>attachment; filename="invoice_TRANS_20260701_00123.png"</code></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>Response lỗi</h4>
+                        <p>Trả về <code class="chip">HTTP 404</code> nếu không tìm thấy giao dịch tương ứng với <code>id</code> được cung cấp.</p>
+
+                        <h4>Ví dụ (cURL)</h4>
+                        <div class="code-block"><pre><code># Tải hóa đơn PNG
+curl -O -J "https://sit-pos-gateway.onefin.vn/api/QueryTransaction/Invoice/TRANS_20260701_00123"
+
+# Tải hóa đơn PDF
+curl -O -J "https://sit-pos-gateway.onefin.vn/api/QueryTransaction/Invoice/TRANS_20260701_00123?format=pdf"</code></pre></div>
+                    </div>
+                </div>
+
                 <div id="response-structure">
-                <h3 style="margin-top: var(--sp-10);"><span class="section-num">3.3</span>Cấu trúc dữ liệu response</h3>
+                <h3 style="margin-top: var(--sp-10);"><span class="section-num">3.4</span>Cấu trúc dữ liệu response</h3>
                     <p>Cả hai API trên đều trả về (hoặc bọc) cấu trúc dữ liệu chung sau.</p>
 
                     <h4>Response</h4>
